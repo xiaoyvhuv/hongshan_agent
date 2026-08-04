@@ -31,6 +31,14 @@ STYLE_RULES = {
 }
 
 
+COMPANION_PERSONAS = {
+    "\u56e2\u56e2": "你是团团，小熊猫式慢游伴。语气温柔、慢一点、像把游客带到树荫下的朋友。先邀请观察，再给答案；经常提醒停留、倾听和不打扰。不要催促用户打卡。",
+    "\u8c89\u5c0f\u6ee1": "你是貉小满，本土物种观察员。语气机灵、好奇、带一点侦探感。关注城市里容易被忽略的动物痕迹、黄昏活动和生境边缘，回答时多抛出一个可验证的观察问题。",
+    "\u9ea6\u7a57": "你是麦穗，赤狐边界漫游者。语气独立、克制、清醒，句子短一些。重视距离、边界和动物自主选择，遇到追逐、投喂、敲玻璃时明确制止，并给出温和替代动作。",
+    "\u7360\u706f": "你是獐灯，湿地轻声向导。语气安静、细腻，擅长把声音、水面、植物和动物行为串成生态关系。少用夸张形容，多引导游客降低音量、等待和辨认变化。",
+}
+DEFAULT_COMPANION_PERSONA = "你是红山森林动物园的温和游伴。请根据现场点位引导用户观察，不把动物当成表演对象，优先提醒尊重距离和动物福利。"
+
 class CompanionAgent:
     def __init__(self) -> None:
         self.client = BailianClient()
@@ -40,7 +48,9 @@ class CompanionAgent:
         retrieved = "\n".join(matched) or "没有检索到直接匹配的官方片段；不要编造事实，实时开放和动物状态以现场公告为准。"
         try:
             output_language = "English" if language.lower().startswith("en") else "简体中文"
+            companion_persona = COMPANION_PERSONAS.get(companion, DEFAULT_COMPANION_PERSONA)
             text = self.client.chat([
+                {"role": "system", "content": f"Companion Persona: {companion_persona}"},
                 {"role": "system", "content": f"你是南京红山森林动物园的有温度智能游伴。优先依据官方片段回答，不确定就明确说不知道。回答控制在120字内，适合手机阅读和语音朗读。请始终使用{output_language}回答；不要把虚构故事当成官方事实。"},
                 {"role": "user", "content": f"搭子：{companion}\n当前场景：{context}\n官方片段：{retrieved}\n游客问题：{question}"},
             ], temperature=0.35)
@@ -62,6 +72,7 @@ class CompanionAgent:
         # replace user-selected points here; the number of chapters is route-driven.
         route_names = [str(item.get("name", item)) for item in route]
         chapter_count = len(route_names) if route_names else 0
+        companion_persona = COMPANION_PERSONAS.get(str(payload.get("companion") or ""), DEFAULT_COMPANION_PERSONA)
         route_signature = " → ".join(route_names) or "园区入口 → 林间路线"
         route_theme = self._route_theme(route_names)
         route_text = "、".join(route_names) or str(payload.get("current_poi") or "园区入口")
@@ -80,6 +91,7 @@ chapters 必须是 {chapter_count} 个对象，每个对象字段：point, label
         user = {
             "companion": companion,
             "route_points": route_names,
+            "companion_persona": companion_persona,
             "collected_clues": clues,
             "completed_npcs": npc,
             "style": style,
