@@ -29,12 +29,20 @@ companion_agent = CompanionAgent()
 class AskRequest(BaseModel):
     question: str
     context: str = ""
+    language: str = "zh-CN"
     companion: str = "小红"
 
 
 class SpeechRequest(BaseModel):
     text: str = Field(min_length=1, max_length=5000)
     voice: str | None = None
+    model: str | None = None
+    language: str = "zh-CN"
+
+
+class TranscribeRequest(BaseModel):
+    audio_url: str
+    language: str = "zh-CN"
     model: str | None = None
 
 
@@ -101,7 +109,7 @@ def session(session_id: str):
 
 @app.post("/api/assistant/ask")
 def ask(req: AskRequest):
-    answer, source = companion_agent.answer(req.question, req.context, req.companion)
+    answer, source = companion_agent.answer(req.question, req.context, req.companion, req.language)
     return {"answer": answer, "source": source}
 
 
@@ -132,3 +140,29 @@ def synthesize(req: SpeechRequest):
         return {"enabled": True, "mime_type": "audio/mpeg", "audio_base64": base64.b64encode(audio).decode("ascii")}
     except Exception as exc:
         return {"enabled": False, "audio_base64": None, "message": f"语音服务暂不可用：{exc}"}
+@app.post("/api/voice/transcribe")
+def transcribe(req: TranscribeRequest):
+    """Transcribe one temporary audio URL with Bailian Paraformer."""
+    client = BailianClient()
+    if not client.enabled:
+        return {"enabled": False, "text": "", "message": "请在 backend/.env 配置 DASHSCOPE_API_KEY"}
+    try:
+        import dashscope
+        import httpx
+        dashscope.api_key = client.api_key
+        model = req.model or os.getenv("ASR_MODEL", "paraformer-v2")
+        task = dashscope.audio.asr.Transcription.async_call(model=model, file_urls=[req.audio_url])
+        task_id = getattr(getattr(task, "output", None), "task_id", None)
+        if not task_id:
+            raise RuntimeError("ASR task id was not returned")
+        result = dashscope.audio.asr.Transcription.wait(task=task_id)
+        results = getattr(getattr(result, "output", None), "results", None) or []
+        texts: list[str] = []
+        for item in results:
+            url = item.get("transcription_url") if isinstance(item, dict) else getattr(item, "transcription_url", None)
+            if url:
+                payload = httpx.get(url, timeout=30).json()
+                texts.append(str(payload.get("transcripts", [{}])[0].get("text", "")))
+        return {"enabled": True, "text": " ".join(x for x in texts if x).strip(), "language": req.language, "model": model}
+    except Exception as exc:
+        return {"enabled": False, "text": "", "message": f"语音识别暂不可用：{exc}"}

@@ -2,9 +2,9 @@ import { knowledgeBase, KnowledgeChunk } from '../data/knowledgeBase'
 
 const terms = (text:string) => text.toLowerCase().split(/[，。！？；、\s?]+/).filter(x=>x.length>1)
 
-export const retrieve = (query:string, limit=3): KnowledgeChunk[] => {
+export const retrieve = (query:string, limit=3, language:KnowledgeChunk['language']='zh-CN', poiId?:string): KnowledgeChunk[] => {
   const q = terms(query)
-  return knowledgeBase.map(chunk => ({ chunk, score:q.reduce((sum,word)=>sum + ((chunk.text+chunk.title+chunk.tags.join('')).toLowerCase().includes(word)?1:0),0) })).sort((a,b)=>b.score-a.score).filter(x=>x.score>0).slice(0,limit).map(x=>x.chunk)
+  return knowledgeBase.map(chunk => ({ chunk, score:q.reduce((sum,word)=>sum + ((chunk.text+chunk.title+chunk.tags.join('')).toLowerCase().includes(word)?1:0),0) + (chunk.language===language?1:0) + (poiId&&chunk.poiId===poiId?2:0) })).sort((a,b)=>b.score-a.score).filter(x=>x.score>0).slice(0,limit).map(x=>x.chunk)
 }
 
 export const answerFromKnowledge = (query:string) => {

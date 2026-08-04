@@ -27,16 +27,22 @@ export async function getParkStatus() {
   return response.json()
 }
 
-export async function askCompanion(input: { question:string; context?:string; companion?:string }) {
+export async function askCompanion(input: { question:string; context?:string; companion?:string; language?:string }) {
   const response = await fetch(`${API_BASE}/api/assistant/ask`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(input) })
   if (!response.ok) throw new Error(`assistant failed: ${response.status}`)
   return response.json() as Promise<{answer:string; source:string}>
 }
 
-export async function synthesizeSpeech(text:string, voice?:string) {
-  const response = await fetch(`${API_BASE}/api/voice/synthesize`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text, voice}) })
+export async function synthesizeSpeech(text:string, voice?:string, language='zh-CN') {
+  const response = await fetch(`${API_BASE}/api/voice/synthesize`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({text, voice, language}) })
   if (!response.ok) throw new Error(`tts failed: ${response.status}`)
   return response.json() as Promise<{enabled:boolean; mime_type?:string; audio_base64?:string; message?:string}>
+}
+
+export async function transcribeSpeech(audioUrl:string, language='zh-CN', model?:string) {
+  const response = await fetch(`${API_BASE}/api/voice/transcribe`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({audio_url:audioUrl, language, model}) })
+  if (!response.ok) throw new Error(`asr failed: ${response.status}`)
+  return response.json() as Promise<{enabled:boolean; text:string; language:string; model?:string; message?:string}>
 }
 
 export async function generateStory(input:{companion:string; current_poi:string; clue?:string; route?:unknown[]; collected_clues?:string[]; completed_npcs?:string[]; style?:string; persona?:Record<string,unknown>}) {

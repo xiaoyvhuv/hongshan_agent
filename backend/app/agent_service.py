@@ -35,12 +35,13 @@ class CompanionAgent:
     def __init__(self) -> None:
         self.client = BailianClient()
 
-    def answer(self, question: str, context: str = "", companion: str = "小红") -> tuple[str, str]:
+    def answer(self, question: str, context: str = "", companion: str = "小红", language: str = "zh-CN") -> tuple[str, str]:
         matched = [value for key, value in FACTS.items() if key in question]
         retrieved = "\n".join(matched) or "没有检索到直接匹配的官方片段；不要编造事实，实时开放和动物状态以现场公告为准。"
         try:
+            output_language = "English" if language.lower().startswith("en") else "简体中文"
             text = self.client.chat([
-                {"role": "system", "content": "你是南京红山森林动物园的有温度智能游伴。优先依据官方片段回答，不确定就明确说不知道。回答控制在120字内，适合手机阅读和语音朗读。"},
+                {"role": "system", "content": f"你是南京红山森林动物园的有温度智能游伴。优先依据官方片段回答，不确定就明确说不知道。回答控制在120字内，适合手机阅读和语音朗读。请始终使用{output_language}回答；不要把虚构故事当成官方事实。"},
                 {"role": "user", "content": f"搭子：{companion}\n当前场景：{context}\n官方片段：{retrieved}\n游客问题：{question}"},
             ], temperature=0.35)
             if text:

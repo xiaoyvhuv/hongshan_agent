@@ -1,4 +1,4 @@
-export type KnowledgeChunk = { id:string; title:string; source:string; tags:string[]; text:string }
+export type KnowledgeChunk = { id:string; title:string; source:string; sourceSection?:string; poiId?:string; language?:'zh-CN'|'en'; contentType?:'fact'|'welfare'|'brand'|'story_style'; reviewed?:boolean; tags:string[]; text:string }
 
 export const knowledgeBase: KnowledgeChunk[] = [
   { id:'welfare', title:'一切为了动物', source:'宣传册中文版.pdf', tags:['动物福利','参观'], text:'红山森林动物园以一切为了动物为核心方针。最好的观赏不是打扰，而是理解、尊重和等待。' },

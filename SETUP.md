@@ -7,6 +7,7 @@ Keep this file private. It is ignored by Git.
 
 The current defaults use the Bailian compatible OpenAI endpoint and `qwen-plus`.
 The story agent may take up to 90 seconds because it generates route-specific chapters.
+Voice transcription uses `paraformer-v2` and accepts a short, time-limited HTTPS audio URL through `/api/voice/transcribe`. The frontend language switch supports Chinese and English contexts; the English knowledge corpus still needs official bilingual content review before production.
 
 ## 2. Start the backend
 
