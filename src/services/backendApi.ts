@@ -11,7 +11,29 @@ export type PlannerInput = {
   }
 }
 
-const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8000'
+const API_BASE = import.meta.env.VITE_API_BASE || 'http://127.0.0.1:8765'
+
+export function getUserId() {
+  let userId = localStorage.getItem('hs-user-id')
+  if (!userId) {
+    userId = globalThis.crypto?.randomUUID?.() || `visitor-${Date.now()}-${Math.random().toString(36).slice(2)}`
+    localStorage.setItem('hs-user-id', userId)
+  }
+  return userId
+}
+
+export async function saveCompanionSelection(companion:string, source:'quiz'|'blind_box'|'manual'='manual') {
+  const response = await fetch(`${API_BASE}/api/profile/companion`, { method:'PUT', headers:{'Content-Type':'application/json'}, body:JSON.stringify({user_id:getUserId(), companion, source}) })
+  if (!response.ok) throw new Error(`save companion failed: ${response.status}`)
+  return response.json() as Promise<{user_id:string; companion:string; source:string; updated_at:string}>
+}
+
+export async function getCompanionSelection() {
+  const response = await fetch(`${API_BASE}/api/profile/${encodeURIComponent(getUserId())}/companion`)
+  if (response.status === 404) return null
+  if (!response.ok) throw new Error(`get companion failed: ${response.status}`)
+  return response.json() as Promise<{user_id:string; companion:string; source:string; updated_at:string}>
+}
 
 export async function planRoute(input: PlannerInput) {
   const response = await fetch(`${API_BASE}/api/route/plan`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(input) })

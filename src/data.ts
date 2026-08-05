@@ -9,10 +9,11 @@ export const points = [
   { id:'exit', name:'推荐离园出口', sub:'带着故事回到城市', x:85, y:76, icon:'↗' },
 ]
 export const animals = [
-  { name:'团团', type:'小熊猫式慢游伴', emoji:'◉', color:'#d9a36a', species:'小熊猫', tags:['慢节奏','善于观察','喜欢树荫'], quote:'不急着赶路，真正有趣的事情值得多看一会儿。', active:'休息中', story:'一片落叶的秘密' },
-  { name:'貉小满', type:'本土物种观察员', emoji:'●', color:'#a98567', species:'貉', tags:['好奇心强','城市适应','喜欢黄昏'], quote:'我不需要成为谁的主角，落叶堆里也有自己的四季。', active:'黄昏活跃', story:'落叶堆里的种子传播员' },
-  { name:'麦穗', type:'赤狐边界漫游者', emoji:'◇', color:'#c8754d', species:'赤狐', tags:['保有距离','爱奔跑','独立'], quote:'靠近之前，先学会尊重彼此的边界。', active:'林缘漫步', story:'不被驯服的奔跑' },
-  { name:'獐灯', type:'湿地轻声向导', emoji:'♧', color:'#9aaf89', species:'獐', tags:['安静','亲近自然','温和'], quote:'把声音放轻一点，湿地会告诉你谁刚刚来过。', active:'湿地觅食', story:'一个池塘的自循环魔法' },
+  { name:'狐獴', type:'嘿！你来啦，我已经坐不住啦！', emoji:'狐獴', color:'#d6a15f', species:'狐獴', tags:['反应快','重点明确','轻快机灵'], quote:'先抓住重点，再一起看看还有什么新发现。', active:'精神十足', story:'迅速出现的关键线索' },
+  { name:'白脸僧面猴', type:'你好，很高兴认识你，请多指教。', emoji:'白脸僧面猴', color:'#879487', species:'白脸僧面猴', tags:['知识严谨','解释完整','平静克制'], quote:'把现象和原因讲清楚，观察才真正有意义。', active:'安静观察', story:'现象背后的完整答案' },
+  { name:'考拉', type:'嗨～我刚睡醒，你来得正好。', emoji:'考拉', color:'#9ca5a0', species:'考拉', tags:['表达简洁','直接可靠','情绪稳定'], quote:'一句话说清重点，然后慢慢看。', active:'安静休息', story:'最短的一条重要提示' },
+  { name:'水獭', type:'哇！是你呀，今天一起玩个痛快！', emoji:'水獭', color:'#8aa99d', species:'水獭', tags:['热情有戏','故事丰富','情绪生动'], quote:'准备好了吗？这条线索背后可有一段好故事。', active:'活跃玩耍', story:'水边突然发生的小故事' },
+  { name:'小熊猫', type:'你好呀，见到你，今天心情都变好啦。', emoji:'小熊猫', color:'#d98858', species:'小熊猫', tags:['温柔耐心','节奏均衡','细腻照顾'], quote:'不用着急，我会陪你按最舒服的节奏慢慢听。', active:'林间散步', story:'一片落叶的温柔来信' },
 ]
 export const chapters = ['在入口收到一封来自森林的信','跟着团伙伴的脚印走进本土物种保育区','在林间休息区整理线索','找到属于你的那一段动物故事']
 export const nodeMissions = [

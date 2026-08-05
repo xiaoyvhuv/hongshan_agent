@@ -17,6 +17,7 @@ from .agent_service import CompanionAgent
 from .bailian_client import BailianClient
 from .orchestrator import Orchestrator
 from .park_data import park_snapshot, park_topology
+from .profile_store import get_companion, save_companion
 from .schemas import RoutePlanRequest, ReplanRequest, StartSessionRequest, SessionEventRequest
 from .session_store import get
 
@@ -57,6 +58,12 @@ class StoryRequest(BaseModel):
     persona: dict = {}
 
 
+class CompanionSelectionRequest(BaseModel):
+    user_id: str = Field(min_length=1, max_length=128)
+    companion: str = Field(min_length=1, max_length=32)
+    source: str = Field(default="manual", max_length=32)
+
+
 @app.get("/health")
 def health():
     enabled = BailianClient().enabled
@@ -70,6 +77,19 @@ def park_status():
 @app.get("/api/park/topology")
 def topology():
     return park_topology()
+
+
+@app.put("/api/profile/companion")
+def remember_companion(req: CompanionSelectionRequest):
+    return save_companion(req.user_id, req.companion, req.source)
+
+
+@app.get("/api/profile/{user_id}/companion")
+def remembered_companion(user_id: str):
+    result = get_companion(user_id)
+    if not result:
+        raise HTTPException(404, "companion choice not found")
+    return result
 
 
 @app.post("/api/route/plan")
